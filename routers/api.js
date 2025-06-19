@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
-const Topic = require("../models/topic");
-const Vocabulary = require("../models/vocabulary");
-const topic = require("../models/topic");
+const Topic = require("../models/Topic"); // Sửa lại tên biến cho nhất quán
+const Vocabulary = require("../models/Vocabulary"); // Sửa lại tên biến cho nhất quán
 
 // topic routes
 // GET: get all topics
 router.get("/topics", async (req, res) => {
   try {
-    const topics = await topic.find().sort({ createdAt: -1 });
+    const topics = await Topic.find().sort({ createdAt: -1 }); // Sử dụng biến Topic đã require ở trên
+    res.json(topics); // <--- THÊM DÒNG NÀY
   } catch (error) {
     return res.status(500).json({ message: "Error fetching topics", error });
   }
@@ -30,7 +30,8 @@ router.post("/topics", async (req, res) => {
 
 // vocabulary routes
 // GET: get all vocabulary for a topic
-router.get("/topics/:topicId/voecabulary", async (req, res) => {
+// SỬA LẠI "voecabulary" -> "vocabulary"
+router.get("/topics/:topicId/vocabulary", async (req, res) => {
   try {
     const vocabularies = await Vocabulary.find({
       topic: req.params.topicId,
