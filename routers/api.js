@@ -18,7 +18,7 @@ router.get("/topics", async (req, res) => {
 // POST: create a new topic
 router.post("/topics", async (req, res) => {
   // check if topic name is existing
-  const existingTopic = await topic.findOne({ name: req.body.name });
+  const existingTopic = await Topic.findOne({ name: req.body.name });
   if (existingTopic) {
     return res.status(400).json({ message: "Topic already exists" });
   }
@@ -71,6 +71,60 @@ router.post("/topics/:topicId/vocabulary", async (req, res) => {
     res.status(201).json(newVocabulary);
   } catch (error) {
     res.status(400).json({ message: "Error creating vocabulary", error });
+  }
+});
+
+// DELETE: delete a vocabulary by ID
+router.delete("/vocabulary/:id", async (req, res) => {
+  try {
+    const vocabulary = await Vocabulary.findByIdAndDelete(req.params.id);
+    if (!vocabulary) {
+      return res.status(404).json({ message: "Vocabulary not found" });
+    }
+    res.status(200).json({ message: "Vocabulary deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting vocabulary", error });
+  }
+});
+
+// PUT: update a vocabulary by ID
+router.put("/vocabulary/:id", async (req, res) => {
+  try {
+    const vocabulary = await Vocabulary.findByIdAndUpdate(
+      req.params.id,
+      {
+        englishWord: req.body.englishWord,
+        vietnameseMeaning: req.body.vietnameseMeaning,
+        exampleSentence: req.body.exampleSentence,
+      },
+      { new: true }
+    );
+    if (!vocabulary) {
+      return res.status(404).json({ message: "Vocabulary not found" });
+    }
+    res.status(200).json(vocabulary);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating vocabulary", error });
+  }
+});
+
+// find a vocabulary by vietnamese meaning
+router.get("/vocabulary/search", async (req, res) => {
+  const vietnameseMeaning = req.query.meaning;
+  if (!vietnameseMeaning) {
+    return res.status(400).json({ message: "Vietnamese meaning is required" });
+  }
+
+  try {
+    const vocabulary = await Vocabulary.findOne({
+      vietnameseMeaning: new RegExp(vietnameseMeaning, "i"),
+    });
+    if (!vocabulary) {
+      return res.status(404).json({ message: "Vocabulary not found" });
+    }
+    res.json(vocabulary);
+  } catch (error) {
+    res.status(500).json({ message: "Error searching vocabulary", error });
   }
 });
 
