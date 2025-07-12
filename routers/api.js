@@ -17,9 +17,15 @@ router.get("/topics", async (req, res) => {
 
 // POST: create a new topic
 router.post("/topics", async (req, res) => {
+  // check if topic name is existing
+  const existingTopic = await topic.findOne({ name: req.body.name });
+  if (existingTopic) {
+    return res.status(400).json({ message: "Topic already exists" });
+  }
   const topic = new Topic({
     name: req.body.name,
   });
+
   try {
     const newTopic = await topic.save();
     res.status(201).json(newTopic);
@@ -44,6 +50,16 @@ router.get("/topics/:topicId/vocabulary", async (req, res) => {
 
 // POST: create a new vocabulary for a topic
 router.post("/topics/:topicId/vocabulary", async (req, res) => {
+  //  check if vocabulary already exists
+  const existingVocabulary = await Vocabulary.findOne({
+    englishWord: req.body.englishWord,
+    topic: req.params.topicId,
+  });
+
+  if (existingVocabulary) {
+    return res.status(400).json({ message: "Vocabulary already exists" });
+  }
+
   const vocabulary = new Vocabulary({
     englishWord: req.body.englishWord,
     vietnameseMeaning: req.body.vietnameseMeaning,
